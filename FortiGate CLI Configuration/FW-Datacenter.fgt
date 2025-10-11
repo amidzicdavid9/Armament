@@ -1,0 +1,158 @@
+!--------------------------------!
+!-------- FW-Datacenter ---------!
+!--------------------------------!
+
+!--------- Grundkonfig ----------!
+config sytem interface
+    edit port1
+        set mode static
+        set ip 100.73.100.2/24
+        set alias WAN
+        set allowaccess https http ssh ping
+        next
+    end
+config router static
+    edit 1
+        set device port1
+        set gateway 100.73.100.1
+        next
+    end
+config system interface
+    edit port2
+        set mode static
+        set ip 10.0.10.254/24
+        set alias to_Services
+        set allowaccess https http ssh ping
+        next
+    end
+config system interface
+    edit port3
+        set mode static
+        set ip 10.0.30.254/24
+        set alias to_DMZ
+        set allowaccess https http ssh ping
+        next    
+    end
+config firewall address
+    edit "Services-Netz"
+        set subnet 10.0.10.0 255.255.255.0
+        next
+    end
+config firewall address
+    edit "DMZ-Netz"
+        set subnet 10.0.30.0 255.255.255.0
+        next
+    end
+
+!----- ADVPN Konfiguration ------!
+# Phase 1 Config
+config vpn ipsec phase1-interface
+    edit "Hub"
+        set type dynamic
+        set interface port1
+        set ike-version 2
+        set peertype any
+        set net-device disable
+        set proposal aes256-sha256
+        set add-route disable
+        set dpd on-idle
+        set auto-discovery-sender enable
+        set psksecret cisco123!
+        set dpd-retryinterval 3
+        next
+    end
+config vpn ipsec phase2-interface
+    edit "Hub"
+        set phase1name "Hub"
+        set proposal aes256-sha256
+        next
+    end
+
+# Firewall Policies, um zwischen den internen Netzen zu routen
+config firewall policy
+    edit 4
+        set name "Spoke-To-Hub-Services"
+        set srcintf Hub
+        set dstintf port2
+        set srcaddr all
+        set dstaddr "Services-Netz"
+        set action accept
+        set schedule always
+        set service "ALL"
+        next
+    edit 5
+        set name "Spoke-To-Hub-DMZ"
+        set srcintf Hub
+        set dstintf port3
+        set srcaddr all
+        set dstaddr "Services-Netz"
+        set action accept
+        set schedule always
+        set service "ALL"
+        next
+    edit 6
+        set name "Spoke-To-Spoke"
+        set srcintf Hub
+        set dstintf Hub
+        set srcaddr all
+        set dstaddr all
+        set action accept
+        set schedule always
+        set service "ALL"
+        next
+    edit 7
+        set name "Hub-To-Spoke-Services"
+        set srcintf port2
+        set dstintf Hub
+        set srcaddr "Services-Netz"
+        set dstaddr all
+        set action accept
+        set schedule always
+        set service "ALL"
+        next
+    edit 8
+        set name "Hub-To-Spoke-DMZ"
+        set srcintf port3
+        set dstintf Hub
+        set srcaddr "DMZ-Netz"
+        set dstaddr all
+        set action accept
+        set schedule always
+        set service "ALL"
+        next
+
+# Tunnel Interface
+config system interface
+    edit "Hub"
+        set ip 192.168.0.1 255.255.255.255
+        set allowaccess ping
+        set type tunnel
+        set remote-ip 192.168.0.254 255.255.255.0
+        next
+    end
+
+# BGP Overlay
+
+config router bgp
+    set as 65800
+    config neighbor-group
+        edit "ADVPN"
+            set link-down-failover enable
+            set remote-as 65800
+            set route-reflector-client enable
+        next
+    end
+    config neighbor-range
+        edit 1
+            set prefix 192.168.0.0 255.255.255.0
+            set neighbor-group "ADVPN"
+        next
+    end
+    config network
+        edit 1
+            set prefix 10.0.10.0 255.255.255.0
+        edit 2
+            set prefix 10.0.30.0 255.255.255.0         
+        next         
+    end
+end
