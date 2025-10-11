@@ -200,8 +200,73 @@ config antivirus profile
     next
 end
 
-
-# Grewware Scan
+# Greyware Scan
 config antivirus settings
  set grayware enable
+end
+
+!------------- IPS --------------!
+# DomainController IPS Sensor
+config ips sensor
+    edit "DC_DomainController_IPS"
+        set comment "Schutz vor DC Exploits"
+        config entries
+            edit 1
+                set protocol DNS LDAP RPC
+                set os Windows
+                set status enable
+                set log-packet enable
+                set action block
+            next
+        end
+    next
+end
+
+# FileServer IPS Sensor
+config ips sensor
+    edit "DC_FileServer_IPS"
+        set comment "Schutz vor FileServer Exploits"
+        config entries
+            edit 1
+                set protocol TCP FTP LDAP RPC FTPS
+                set status enable
+                set log-packet enable
+                set action block
+            next
+        end
+    next
+end
+
+# MailServer IPS Sensor
+config ips sensor
+    edit "DC_MailServer_IPS"
+        set comment "Schutz vor MailServer Exploits"
+        config entries
+            edit 1
+                set location server
+                set protocol SMTP POP3 IMAP
+                set application MS_Exchange
+                set status enable
+                set log-packet enable
+                set action block
+            next
+        end
+    next
+end
+
+# WebServer IPS Sensor
+config ips sensor
+    edit "DC_WebServer_IPS"
+        set comment "Schutz vor WebServer Exploits"
+        config entries
+            edit 1
+                set location server
+                set protocol TCP HTTP HTTPS
+                set vuln-type 9
+                set status enable
+                set log-packet enable
+                set action block
+            next
+        end
+    next
 end
