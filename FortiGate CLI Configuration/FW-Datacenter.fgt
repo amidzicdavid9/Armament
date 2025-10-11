@@ -156,3 +156,9 @@ config router bgp
         next         
     end
 end
+
+!---------- Antivirus -----------!
+# Grewware Scan
+config antivirus settings
+ set grayware enable
+end
