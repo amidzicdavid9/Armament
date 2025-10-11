@@ -79,7 +79,7 @@ config firewall policy
         set action accept
         set schedule always
         set service "ALL"
-        next
+    next
     edit 5
         set name "Spoke-To-Hub-DMZ"
         set srcintf Hub
@@ -89,7 +89,7 @@ config firewall policy
         set action accept
         set schedule always
         set service "ALL"
-        next
+    next
     edit 6
         set name "Spoke-To-Spoke"
         set srcintf Hub
@@ -109,7 +109,7 @@ config firewall policy
         set action accept
         set schedule always
         set service "ALL"
-        next
+    next
     edit 8
         set name "Hub-To-Spoke-DMZ"
         set srcintf port3
@@ -119,8 +119,8 @@ config firewall policy
         set action accept
         set schedule always
         set service "ALL"
-        next
-    end
+    next
+end
 
 # Tunnel Interface
 config system interface
@@ -129,8 +129,8 @@ config system interface
         set allowaccess ping
         set type tunnel
         set remote-ip 192.168.0.254 255.255.255.0
-        next
-    end
+    next
+end
 
 # BGP Overlay
 config router bgp
@@ -158,6 +158,49 @@ config router bgp
 end
 
 !---------- Antivirus -----------!
+# Antivirus Scan
+config antivirus profile
+    edit "Inspect-All-Block-Proxy-based"
+        set feature-set proxy
+        config http
+            set av-scan block
+            set content-disarm enable
+        end
+        config ftp
+            set av-scan block
+        end
+        config imap
+            set av-scan block
+            set executables virus
+            set content-disarm enable
+        end
+        config pop3
+            set av-scan block
+            set executables virus
+            set content-disarm enable
+        end
+        config smtp
+            set av-scan block
+            set executables virus
+            set content-disarm enable
+        end
+        config mapi
+            set av-scan block
+            set executables virus
+        end
+        config cifs
+            set av-scan block
+        end
+        config ssh
+            set av-scan block
+        end
+        config content-disarm
+            set original-file-destination quarantine
+        end
+    next
+end
+
+
 # Grewware Scan
 config antivirus settings
  set grayware enable
