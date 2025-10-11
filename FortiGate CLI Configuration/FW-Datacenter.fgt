@@ -120,6 +120,7 @@ config firewall policy
         set schedule always
         set service "ALL"
         next
+    end
 
 # Tunnel Interface
 config system interface
@@ -132,7 +133,6 @@ config system interface
     end
 
 # BGP Overlay
-
 config router bgp
     set as 65800
     config neighbor-group
