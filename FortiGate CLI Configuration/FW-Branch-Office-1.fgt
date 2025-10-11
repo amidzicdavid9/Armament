@@ -1,0 +1,41 @@
+!--------------------------------!
+!------- FW-Headquarter ---------!
+!--------------------------------!
+
+!--------- Grundkonfig ----------!
+config sytem interface
+    edit port1
+        set mode static
+        set ip 100.73.102.2/24
+        set alias WAN
+        set allowaccess https http ssh ping
+    end
+config router static
+    edit 1
+        set device port1
+        set gateway 100.73.102.1
+    end
+config system interface
+    edit port2
+        set mode static
+        set ip 10.0.20.254/24
+        set alias to_Services
+        set allowaccess https http ssh ping
+    end
+config system interface
+    edit port3
+        set mode static
+        set ip 10.0.40.254/24
+        set alias to_Produktion
+        set allowaccess https http ssh ping
+    end
+config firewall address
+    edit "Services-Netz"
+        set subnet 10.0.20.0 255.255.255.0
+        next
+    end
+config firewall address
+    edit "Produktion-Netz"
+        set subnet 10.0.40.0 255.255.255.0
+        next
+    end
