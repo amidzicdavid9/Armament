@@ -243,3 +243,46 @@ config ips sensor
         end
     next
 end
+
+# IPS Sensor für DNS Forwarder und Bastion Host Server in DMZ
+config ips sensor
+    edit "DC_DMZ_IPS"
+        set comment "IPS Sensor für Server in DMZ"
+        set block-malicious-url enable
+        set scan-botnet-connections block
+        config entries
+            edit 1
+                set location server
+                set protocol DNS
+                set vuln-type 2
+                set status enable
+                set log-packet enable
+                set action block
+            next
+            edit 2
+                set protocol ICMP SSH
+                set status enable
+                set log-packet enable
+                set action block
+            next
+        end
+    next
+end
+
+#IPS Sensor zwischen DMZ und Services
+config ips sensor
+    edit "high_security"
+        set comment "Blocks all Critical/High/Medium and some Low severity vulnerabilities"
+        set block-malicious-url enable
+        config entries
+            edit 1
+                set severity medium high critical
+                set status enable
+                set action block
+            next
+            edit 2
+                set severity low
+            next
+        end
+    next
+end
