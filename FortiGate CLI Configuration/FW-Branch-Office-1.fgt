@@ -39,3 +39,67 @@ config firewall address
         set subnet 10.0.40.0 255.255.255.0
         next
     end
+
+!------------- IPS --------------!
+# IPS Sensor für DomainController in Services
+config ips sensor
+    edit "BO1_Services_IPS"
+        set comment "IPS Sensor für DomainController in Services"
+        set block-malicious-url enable
+        set scan-botnet-connections block
+        config entries
+            edit 1
+                set location server
+                set protocol LDAP RPC
+                set status enable
+                set log-packet enable
+                set action block
+            next
+        end
+    next
+end
+
+# IPS Sensor für Clients in Client Netzen
+config ips sensor
+    edit "protect_client"
+        set comment "Protect against client-side vulnerabilities."
+        set block-malicious-url enable
+        set scan-botnet-connections block
+        config entries
+            edit 1
+                set location client
+                set status enable
+                set log-packet enable
+                set action block
+            next
+        end
+    next
+end
+
+# IPS Sensor zwischen Server und Clients
+config ips sensor
+    edit "high_security"
+        set comment "Blocks all Critical/High/Medium and some Low severity vulnerabilities"
+        set block-malicious-url enable
+        config entries
+            edit 1
+                set severity medium high critical
+                set status enable
+                set log-packet enable
+                set action block
+            next
+            edit 2
+                set severity low
+                set status enable
+                set log-packet enable
+                set action block
+            next
+            edit 3
+                set location client
+                set status enable
+                set log-packet enable
+                set action block
+            next
+        end
+    next
+end  
