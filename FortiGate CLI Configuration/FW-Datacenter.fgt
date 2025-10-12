@@ -206,63 +206,36 @@ config antivirus settings
 end
 
 !------------- IPS --------------!
-# DomainController IPS Sensor
+# IPS Sensor für DomainController, FileServer, MailServer und WebServer in Services
 config ips sensor
-    edit "DC_DomainController_IPS"
-        set comment "Schutz vor DC Exploits"
+    edit "DC_Services_IPS"
+        set comment "IPS Sensor für Server in Services"
+        set scan-botnet-connections block
         config entries
             edit 1
-                set protocol DNS LDAP RPC
-                set os Windows
+                set location server
+                set protocol LDAP RPC
                 set status enable
                 set log-packet enable
                 set action block
             next
-        end
-    next
-end
-
-# FileServer IPS Sensor
-config ips sensor
-    edit "DC_FileServer_IPS"
-        set comment "Schutz vor FileServer Exploits"
-        config entries
-            edit 1
-                set protocol TCP FTP LDAP RPC FTPS
+            edit 2
+                set location server
+                set protocol TCP FTP RPC FTPS
                 set status enable
                 set log-packet enable
                 set action block
             next
-        end
-    next
-end
-
-# MailServer IPS Sensor
-config ips sensor
-    edit "DC_MailServer_IPS"
-        set comment "Schutz vor MailServer Exploits"
-        config entries
-            edit 1
+            edit 3
                 set location server
                 set protocol SMTP POP3 IMAP
-                set application MS_Exchange
                 set status enable
                 set log-packet enable
                 set action block
             next
-        end
-    next
-end
-
-# WebServer IPS Sensor
-config ips sensor
-    edit "DC_WebServer_IPS"
-        set comment "Schutz vor WebServer Exploits"
-        config entries
-            edit 1
+            edit 4
                 set location server
                 set protocol TCP HTTP HTTPS
-                set vuln-type 9
                 set status enable
                 set log-packet enable
                 set action block
