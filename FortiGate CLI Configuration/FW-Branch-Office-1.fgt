@@ -1,5 +1,5 @@
 !--------------------------------!
-!------- FW-Headquarter ---------!
+!----- FW-Branch-Office-1 -------!
 !--------------------------------!
 
 !--------- Grundkonfig ----------!
@@ -39,6 +39,153 @@ config firewall address
         set subnet 10.0.40.0 255.255.255.0
         next
     end
+
+!------------- Snat -------------!
+# SNAT-Services
+config firewall central-snat-map
+    edit 1
+        set uuid 33cf7f82-8f47-51f0-efb8-9897eece716f
+        set srcintf "port2"
+        set dstintf "port1"
+        set orig-addr "all"
+        set dst-addr "all"
+        set comments "SNAT for the Services"
+    next
+end
+
+# SNAT-Production
+config firewall central-snat-map
+    edit 2
+        set uuid 535d2606-8f47-51f0-82ef-1ba2277c154b
+        set srcintf "port3"
+        set dstintf "port1"
+        set orig-addr "all"
+        set dst-addr "all"
+        set comments "SNAT for the Production"
+    next
+end
+
+!--------- DoS-policy ---------!
+config firewall DoS-policy
+    edit 1
+        set name "Block&Log-All-Outside"
+        set comments "Blockiert übermäßigen Traffic"
+        set interface "port1"
+        set srcaddr "all"
+        set dstaddr "Produktion-Netz" "Services-Netz"
+        set service "ALL"
+        config anomaly
+            edit "tcp_syn_flood"
+                set status enable
+                set log enable
+                set action block
+                set threshold 2000
+            next
+            edit "tcp_port_scan"
+                set status enable
+                set log enable
+                set action block
+                set threshold 1000
+            next
+            edit "tcp_src_session"
+                set status enable
+                set log enable
+                set action block
+                set threshold 5000
+            next
+            edit "tcp_dst_session"
+                set status enable
+                set log enable
+                set action block
+                set threshold 5000
+            next
+            edit "udp_flood"
+                set status enable
+                set log enable
+                set action block
+                set threshold 2000
+            next
+            edit "udp_scan"
+                set status enable
+                set log enable
+                set action block
+                set threshold 2000
+            next
+            edit "udp_src_session"
+                set status enable
+                set log enable
+                set action block
+                set threshold 5000
+            next
+            edit "udp_dst_session"
+                set status enable
+                set log enable
+                set action block
+                set threshold 5000
+            next
+            edit "icmp_flood"
+                set status enable
+                set log enable
+                set action block
+                set threshold 250
+            next
+            edit "icmp_sweep"
+                set status enable
+                set log enable
+                set action block
+                set threshold 100
+            next
+            edit "icmp_src_session"
+                set status enable
+                set log enable
+                set action block
+                set threshold 300
+            next
+            edit "icmp_dst_session"
+                set status enable
+                set log enable
+                set action block
+                set threshold 1000
+            next
+            edit "ip_src_session"
+                set status enable
+                set log enable
+                set action block
+                set threshold 5000
+            next
+            edit "ip_dst_session"
+                set status enable
+                set log enable
+                set action block
+                set threshold 5000
+            next
+            edit "sctp_flood"
+                set status enable
+                set log enable
+                set action block
+                set threshold 2000
+            next
+            edit "sctp_scan"
+                set status enable
+                set log enable
+                set action block
+                set threshold 1000
+            next
+            edit "sctp_src_session"
+                set status enable
+                set log enable
+                set action block
+                set threshold 5000
+            next
+            edit "sctp_dst_session"
+                set status enable
+                set log enable
+                set action block
+                set threshold 5000
+            next
+        end
+    next 
+end
 
 !------------- IPS --------------!
 # IPS Sensor für DomainController in Services
@@ -102,4 +249,198 @@ config ips sensor
             next
         end
     next
-end  
+end
+
+!--------- Antivirus ----------!
+config antivirus profile
+    edit "Block-Most-Flow"
+        set comment "Blocks most and is flow-based"
+        config http
+            set av-scan block
+            set outbreak-prevention block
+            set malware-stream block
+        end
+        config ftp
+            set av-scan block
+            set outbreak-prevention block
+            set malware-stream block
+        end
+        config imap
+            set av-scan block
+            set outbreak-prevention block
+            set malware-stream block
+            set executables virus
+        end
+        config pop3
+            set av-scan block
+            set outbreak-prevention block
+            set malware-stream block
+            set executables virus
+        end
+        config smtp
+            set av-scan block
+            set outbreak-prevention block
+            set malware-stream block
+            set executables virus
+        end
+        config cifs
+            set av-scan block
+            set outbreak-prevention block
+            set malware-stream block
+        end
+    next
+end
+
+# Greyware Scan
+config antivirus settings
+ set grayware enable
+end
+
+!--------- Webfilter ----------!
+config webfilter profile
+    edit "Block-Most-Flow-Filter"
+        set comment "Blocks most categories and is flow-based"
+        set options cookiefilter
+        config web
+            set urlfilter-table 1
+            set safe-search url header
+            set youtube-restrict strict
+        end
+        config ftgd-wf
+            unset options
+            config filters
+                edit 1
+                    set action block
+                next
+                edit 2
+                    set category 2
+                    set action block
+                next
+                edit 3
+                    set category 7
+                    set action block
+                next
+                edit 4
+                    set category 8
+                    set action block
+                next
+                edit 5
+                    set category 9
+                    set action block
+                next
+                edit 6
+                    set category 11
+                    set action block
+                next
+                edit 7
+                    set category 13
+                    set action block
+                next
+                edit 8
+                    set category 14
+                    set action block
+                next
+                edit 9
+                    set category 15
+                    set action block
+                next
+                edit 10
+                    set category 16
+                    set action block
+                next
+                edit 11
+                    set category 26
+                    set action block
+                next
+                edit 12
+                    set category 57
+                    set action block
+                next
+                edit 13
+                    set category 61
+                    set action block
+                next
+                edit 14
+                    set category 63
+                    set action block
+                next
+                edit 15
+                    set category 64
+                    set action block
+                next
+                edit 16
+                    set category 65
+                    set action block
+                next
+                edit 17
+                    set category 66
+                    set action block
+                next
+                edit 18
+                    set category 67
+                    set action block
+                next
+                edit 19
+                    set category 83
+                    set action block
+                next
+                edit 20
+                    set category 86
+                    set action block
+                next
+                edit 21
+                    set category 88
+                    set action block
+                next
+                edit 22
+                    set category 90
+                    set action block
+                next
+                edit 23
+                    set category 91
+                    set action block
+                next
+                edit 24
+                    set category 96
+                    set action block
+                next
+                edit 25
+                    set category 98
+                    set action block
+                next
+                edit 26
+                    set category 99
+                    set action block
+                next
+                edit 27
+                    set category 1
+                    set action block
+                next
+                edit 28
+                    set category 3
+                next
+                edit 29
+                    set category 4
+                    set action block
+                next
+                edit 30
+                    set category 5
+                next
+                edit 31
+                    set category 6
+                    set action block
+                next
+                edit 32
+                    set category 12
+                    set action block
+                next
+                edit 33
+                    set category 59
+                next
+                edit 34
+                    set category 62
+                next
+            end
+        end
+    next 
+end
