@@ -580,3 +580,28 @@ config webfilter profile
     next 
 end
 
+!--------- DLP ----------!
+config dlp profile
+    edit "DC_Mitarbeiterliste_Profile_DLP"
+        set comment "DLP Profile für die Mitarbeiterliste, in der IBAN und SV gespeichert sind"
+        set feature-set proxy
+        config rule
+            edit 1
+                set name "DC_Mitarbeiterliste_Message_Rule"
+                set type message
+                set proto smtp pop3 imap http-post
+                set filter-by sensor
+                set sensor "DC_Mitarbeiterliste_Sensor"
+                set action block
+            next
+            edit 2
+                set name "DC_Mitarbeiterliste_File_Rule"
+                set proto smtp pop3 imap http-get http-post ftp ssh
+                set filter-by sensor
+                set file-type 1
+                set sensor "DC_Mitarbeiterliste_Sensor"
+                set action block
+            next
+        end
+    next
+end
