@@ -583,9 +583,9 @@ end
 !--------- DLP ----------!
 # DLP EDM für Mitarbeiterliste
 config dlp exact-data-match
-    edit "HQ_Mitarbeiterliste_EDM"
+    edit "DC_Mitarbeiterliste_EDM"
         set optional 1
-        set data "HQ_Mitarbeiterliste_EDM" # Die Datei sollte in der GUI hochgeladen werden
+        set data "DC_Mitarbeiterliste_EDM" # Die Datei sollte in der GUI hochgeladen werden
         config columns
             edit 9
                 set type "edm-keyword"
@@ -601,7 +601,7 @@ end
 
 # DLP Sensor mit dem zuvor erstellten EDM
 config dlp sensor
-    edit "HQ_Mitarbeiterliste_Sensor"
+    edit "DC_Mitarbeiterliste_Sensor"
         set comment "Sensor für Mitarbeiterliste"
         config entries
             edit 1
