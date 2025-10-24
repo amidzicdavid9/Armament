@@ -670,3 +670,60 @@ config webfilter profile
         set web-ftgd-err-log disable
     next 
 end 
+
+!--------- DLP ----------!
+# DLP EDM für Mitarbeiterliste
+config dlp exact-data-match
+    edit "HQ_Mitarbeiterliste_EDM"
+        set optional 1
+        set data "HQ_Mitarbeiterliste_EDM" # Die Datei sollte in der GUI hochgeladen werden
+        config columns
+            edit 9
+                set type "edm-keyword"
+                set optional enable
+            next
+            edit 10
+                set type "edm-keyword"
+                set optional enable
+            next
+        end
+    next
+end
+
+# DLP Sensor mit dem zuvor erstellten EDM
+config dlp sensor
+    edit "HQ_Mitarbeiterliste_Sensor"
+        set comment "Sensor für Mitarbeiterliste"
+        config entries
+            edit 1
+                set dictionary "HQ_Mitarbeiterliste_EDM"
+            next
+        end
+    next
+end
+
+# DLP Profile für die SNAT proxy-based Policy
+config dlp profile
+    edit "HQ_Mitarbeiterliste_Profile_DLP"
+        set comment "DLP Profile für die Mitarbeiterliste"
+        set feature-set proxy
+        config rule
+            edit 1
+                set name "HQ_Mitarbeiterliste_Message_Rule"
+                set type message
+                set proto smtp pop3 imap http-post
+                set filter-by sensor
+                set sensor "HQ_Mitarbeiterliste_Sensor"
+                set action block
+            next
+            edit 2
+                set name "HQ_Mitarbeiterliste_File_Rule"
+                set proto smtp pop3 imap http-get http-post ftp ssh
+                set filter-by sensor
+                set file-type 1
+                set sensor "HQ_Mitarbeiterliste_Sensor"
+                set action block
+            next
+        end
+    next
+end
